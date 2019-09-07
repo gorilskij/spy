@@ -1,6 +1,6 @@
 use std::time::{Instant, Duration};
 use std::thread::sleep;
-use super::terminal::{clear_line, flush, ring};
+use crate::terminal::{clear_line, flush, ring};
 
 fn print_time(seconds: u64) {
     print!("{:0>2}:{:0>2}", seconds / 60, seconds % 60);

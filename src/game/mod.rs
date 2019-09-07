@@ -1,9 +1,8 @@
 extern crate rand;
 use rand::{Rng, prelude::ThreadRng, seq::SliceRandom};
-mod terminal;
-use terminal::{pre_clear, show_secret_text};
 mod timer;
 use timer::run_timer;
+use crate::terminal::{pre_clear, show_secret_text};
 
 pub struct Game<'a> {
     words: &'a [&'a str],

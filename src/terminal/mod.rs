@@ -1,5 +1,19 @@
 use std::io::{stdin, stdout};
 use std::io::Write;
+mod animation;
+
+pub struct Text(Vec<String>);
+
+impl<S: Into<String>> From<S> for Text {
+    fn from(s: S) -> Self {
+        let vec = s
+            .into()
+            .lines()
+            .map(|s| s.clone().to_string())
+            .collect::<Vec<_>>();
+        Text(vec)
+    }
+}
 
 const E_ESCAPE: char = '\x1b'; // '\e' (ESC sequence)
 
