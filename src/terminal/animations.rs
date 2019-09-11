@@ -3,36 +3,50 @@ use crate::terminal::{move_up, move_down, temporary_text, clear_line};
 use std::thread::sleep;
 use std::time::Duration;
 use std::marker::PhantomData;
-use std::io::stdin;
+use std::io::{stdin, Read};
 use std::cmp::max;
+use std::fmt::Display;
 
-pub struct Stage(Vec<String>);
+pub struct Stage {
+    vec: Vec<String>,
+    fixed_bottom: usize,
+}
 
 impl From<Vec<String>> for Stage {
     fn from(vec: Vec<String>) -> Self {
-        Self(vec)
+        Self {
+            vec,
+            fixed_bottom: 0,
+        }
     }
 }
 
 impl Stage {
     pub fn new(height: usize, string: String) -> Self {
-        let stage = Self(string.lines().map(String::from).collect());
+        let stage = Self {
+            vec: string.lines().map(String::from).collect(),
+            fixed_bottom: 0,
+        };
         stage.clear();
         stage
     }
 
+    pub fn fix_bottom(&mut self, lines: usize) {
+        self.fixed_bottom = lines;
+    }
+
     pub fn set_vec(&mut self, vec: Vec<String>) {
-        self.0 = vec;
+        self.vec = vec;
         self.clear();
     }
 
     pub fn set_string(&mut self, new_string: String) {
-        self.0 = new_string.lines().map(String::from).collect();
+        self.vec = new_string.lines().map(String::from).collect();
         self.clear();
     }
 
     fn len(&self) -> usize {
-        self.0.len()
+        self.vec.len()
     }
 
     pub fn clear(&self) {
@@ -41,30 +55,81 @@ impl Stage {
     }
 
     pub fn show(&self) {
-        for line in &self.0 {
+        for line in &self.vec {
             fprintln!("{}", line)
         }
         move_up(self.len());
     }
 
-    fn print_lines_from_bottom(&self, num_lines: usize) {
-        for _ in 0..(self.len() - num_lines) { move_down(1) }
-        self.0.iter().take(num_lines).for_each(|l| fprintln!("{}", l));
-        move_up(self.len());
+    fn print_lines_from_bottom<D>(&self, bottom: usize, num_lines: usize, from: impl Iterator<Item=D>)
+    where D: Display {
+        for _ in 0..(bottom - num_lines) { move_down(1) }
+        from.take(num_lines).for_each(|l| fprintln!("{}", l));
+        move_up(bottom);
     }
 
     pub fn animate_up(&self) {
+        if self.fixed_bottom > 0 {
+            return self.animate_up_fixed_bottom()
+        }
+
         for num_lines in 0..=self.len() {
             self.clear();
-            self.print_lines_from_bottom(num_lines);
+            self.print_lines_from_bottom(self.len(), num_lines, self.vec.iter());
+            sleep(Duration::from_millis(50));
+        }
+    }
+
+    fn animate_up_fixed_bottom(&self) {
+        let lines = self.fixed_bottom;
+
+        for num_lines in 0..=lines {
+            self.clear();
+            self.print_lines_from_bottom(self.len(), num_lines, self.vec.iter().skip(self.len() - lines));
+            sleep(Duration::from_millis(50));
+        }
+
+        for num_lines in 0..=self.len()-lines {
+            self.clear();
+            self.print_lines_from_bottom(self.len() - lines, num_lines, self.vec.iter());
+            move_down(self.len() - lines);
+            for line in (self.len() - lines)..self.len() {
+                fprintln!("{}", self.vec[line])
+            }
+            move_up(self.len());
             sleep(Duration::from_millis(50));
         }
     }
 
     pub fn animate_down(&self) {
+        if self.fixed_bottom > 0 {
+            return self.animate_down_fixed_bottom();
+        }
+
         for num_lines in (0..=self.len()).rev() {
             self.clear();
-            self.print_lines_from_bottom(num_lines);
+            self.print_lines_from_bottom(self.len(), num_lines, self.vec.iter());
+            sleep(Duration::from_millis(50));
+        }
+    }
+
+    fn animate_down_fixed_bottom(&self) {
+        let lines = self.fixed_bottom;
+
+        for num_lines in (0..=self.len()-lines).rev() {
+            self.clear();
+            self.print_lines_from_bottom(self.len() - lines, num_lines, self.vec.iter());
+            move_down(self.len() - lines);
+            for line in (self.len() - lines)..self.len() {
+                fprintln!("{}", self.vec[line])
+            }
+            move_up(self.len());
+            sleep(Duration::from_millis(50));
+        }
+
+        for num_lines in (0..=lines).rev() {
+            self.clear();
+            self.print_lines_from_bottom(self.len(), num_lines, self.vec.iter().skip(self.len() - lines));
             sleep(Duration::from_millis(50));
         }
     }
@@ -98,6 +163,8 @@ impl EnterLine {
 
     pub fn prompt<S: Into<String>>(&self, s: S) {
         fprint!("{}", s.into());
+        let mut _byte = [0_u8];
+
         let mut _in = String::new();
         stdin().read_line(&mut _in).expect("couldn't read line");
         move_up(1);
@@ -127,6 +194,7 @@ macro_rules! forward {
 
 impl StageWithEnterLine {
     forward! {
+        &mut Self, 0, fix_bottom(lines: usize);
         &mut Self, 0, set_vec(v: Vec<String>);
         &mut Self, 0, set_string(s: String);
         &Self, 0, show();

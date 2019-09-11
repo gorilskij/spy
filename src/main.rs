@@ -8,6 +8,7 @@ use crate::terminal::Window;
 use std::thread::sleep;
 use std::time::Duration;
 use crate::terminal::animations::StageWithEnterLine;
+use rand::Rng;
 
 // method call
 // e.g. .map(m!(to_string)) = .map(|x| x.to_string())
@@ -54,6 +55,9 @@ fn main() {
 //    std::thread::sleep(std::time::Duration::from_secs(1));
 //    s.clear();
 
+
+//    let mut rng = rand::thread_rng();
+//    println!("{:?}", (1..10).map(|_| rng.gen()).collect::<Vec<f64>>())
 
 
     let mut game = Game::new(words::COUNTRIES);
