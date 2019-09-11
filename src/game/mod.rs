@@ -2,7 +2,7 @@ extern crate rand;
 use rand::{Rng, prelude::ThreadRng, seq::SliceRandom};
 mod timer;
 use timer::run_timer;
-use crate::terminal::{pre_clear, show_secret_text};
+use crate::terminal::{clear, show_secret_text};
 
 pub struct Game<'a> {
     words: &'a [&'a str],
@@ -26,7 +26,7 @@ impl<'a> Game<'a> {
         let spy = self.rng.gen_range(0, 2);
         let word = self.words.choose(&mut self.rng).unwrap();
         
-        pre_clear(2);
+        clear(2);
         
         for player in 0..3 {
             show_secret_text(
