@@ -18,23 +18,23 @@ macro_rules! m {
 }
 
 fn main() {
-    let vec = [
-        "     *****     ",
-        "   **     **   ",
-        "  *         *  ",
-        " *   hello   * ",
-        " *           * ",
-        " *           * ",
-    ].iter().map(m!(to_string)).collect::<Vec<String>>();
-
-    let s = StageWithEnterLine::from(vec);
-    loop {
-        s.animate_up();
-        sleep(Duration::from_millis(200));
-        s.prompt("PRESS ENTER TO CONTINUE");
-        s.animate_down();
-        sleep(Duration::from_millis(200));
-    }
+//    let vec = [
+//        "     *****     ",
+//        "   **     **   ",
+//        "  *         *  ",
+//        " *   hello   * ",
+//        " *           * ",
+//        " *           * ",
+//    ].iter().map(m!(to_string)).collect::<Vec<String>>();
+//
+//    let s = StageWithEnterLine::from(vec);
+//    loop {
+//        s.animate_up();
+//        sleep(Duration::from_millis(200));
+//        s.prompt("PRESS ENTER TO CONTINUE");
+//        s.animate_down();
+//        sleep(Duration::from_millis(200));
+//    }
 
 
 
@@ -56,6 +56,6 @@ fn main() {
 
 
 
-//    let mut game = Game::new(words::COUNTRIES);
-//    loop { game.play_round(); }
+    let mut game = Game::new(words::COUNTRIES);
+    loop { game.play_round(); }
 }

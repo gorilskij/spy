@@ -4,6 +4,7 @@ use std::thread::sleep;
 use std::time::Duration;
 use std::marker::PhantomData;
 use std::io::stdin;
+use std::cmp::max;
 
 pub struct Stage(Vec<String>);
 
@@ -18,6 +19,11 @@ impl Stage {
         let stage = Self(string.lines().map(String::from).collect());
         stage.clear();
         stage
+    }
+
+    pub fn set_vec(&mut self, vec: Vec<String>) {
+        self.0 = vec;
+        self.clear();
     }
 
     pub fn set_string(&mut self, new_string: String) {
@@ -51,7 +57,7 @@ impl Stage {
         for num_lines in 0..=self.len() {
             self.clear();
             self.print_lines_from_bottom(num_lines);
-            sleep(Duration::from_millis(100));
+            sleep(Duration::from_millis(50));
         }
     }
 
@@ -59,7 +65,7 @@ impl Stage {
         for num_lines in (0..=self.len()).rev() {
             self.clear();
             self.print_lines_from_bottom(num_lines);
-            sleep(Duration::from_millis(100));
+            sleep(Duration::from_millis(50));
         }
     }
 }
@@ -121,6 +127,7 @@ macro_rules! forward {
 
 impl StageWithEnterLine {
     forward! {
+        &mut Self, 0, set_vec(v: Vec<String>);
         &mut Self, 0, set_string(s: String);
         &Self, 0, show();
         &Self, 0, animate_up();
