@@ -16,8 +16,9 @@ pub struct Game<'a> {
 }
 
 fn scroll<S>(mut lines: Vec<S>) -> String where String: From<S> {
+    return big_scroll(lines);
     let mut drain = lines.drain(..);
-    format!("
+    format!(r"
   _______________________
 =(__    ___      __     _)=
   |                   . |
@@ -34,6 +35,33 @@ fn scroll<S>(mut lines: Vec<S>) -> String where String: From<S> {
         drain.next().map(String::from).unwrap_or(String::new()),
         drain.next().map(String::from).unwrap_or(String::new()),
         drain.next().map(String::from).unwrap_or(String::new()),
+    )
+}
+
+fn big_scroll<S>(mut lines: Vec<S>) -> String where String: From<S> {
+    let mut drain = lines.drain(..);
+    format!(r"
+ .-.---------------------------------.-.
+((o))__ _   ___ __  __._____ _   _ ___  )
+ \U/_______    .     _____         _.__/
+   |         .    .                   |
+   |    .                         .   |
+   |             .          .         |
+   |{:^34}|
+   |{:^34}|
+   |{:^34}|
+   |               .           .      |
+   |  .        .                      |
+   |                                  |
+   |       .          .        .      |
+   |        .                         |
+   |____    _______    __  ____    ___|
+  /A\     .        .               .   \
+ ((o))_ __  ___ _____ _.  __ ___ ____ __)
+  '-'----------------------------------'",
+            drain.next().map(String::from).unwrap_or(String::new()),
+            drain.next().map(String::from).unwrap_or(String::new()),
+            drain.next().map(String::from).unwrap_or(String::new()),
     )
 }
 
@@ -61,7 +89,7 @@ impl<'a> Game<'a> {
         let spy = (self.rng.gen::<f64>() * 3.0) as u64 + 1;
         let word = self.words.choose(&mut self.rng).unwrap();
 
-        self.stage.fix_bottom(1);
+        self.stage.fix_bottom(3);
 
         for player in 1..=3 {
             self.show_ask_hide(
